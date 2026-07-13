@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motion Lab — Black Metallic Glass</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{min-height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Inter,sans-serif;
+    background:#0b0c0e;color:#fff;overflow-x:hidden;
+  }
+
+  /* ============ SCENA ============ */
+  .scene{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .scene::before{content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(140% 110% at 30% -10%,#26292f 0%,transparent 55%),
+      radial-gradient(120% 120% at 80% 110%,#15161a 0%,transparent 60%),
+      linear-gradient(155deg,#191b1f 0%,#0f1013 55%,#0a0b0d 100%)}
+  .scene::after{content:"";position:absolute;inset:-50%;
+    background:repeating-linear-gradient(115deg,
+      rgba(255,255,255,.02) 0 1px,transparent 1px 3px);
+    mix-blend-mode:screen}
+  .glow{position:absolute;border-radius:50%;filter:blur(90px);will-change:transform,translate}
+  .glow.a{width:600px;height:600px;left:8%;top:-6%;
+    background:radial-gradient(circle,rgba(96,140,255,.25),transparent 65%);
+    animation:orbA 30s linear infinite}
+  .glow.b{width:540px;height:540px;right:4%;top:34%;
+    background:radial-gradient(circle,rgba(255,150,90,.20),transparent 65%);
+    animation:orbB 38s linear infinite}
+  .glow.c{width:460px;height:460px;left:30%;bottom:-10%;
+    background:radial-gradient(circle,rgba(190,120,255,.16),transparent 65%);
+    animation:orbA 44s linear infinite reverse}
+  @keyframes orbA{from{transform:rotate(0) translateX(120px) rotate(0)}to{transform:rotate(360deg) translateX(120px) rotate(-360deg)}}
+  @keyframes orbB{from{transform:rotate(0) translateX(-160px) rotate(0)}to{transform:rotate(-360deg) translateX(-160px) rotate(360deg)}}
+  .vignette{position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:radial-gradient(130% 100% at 50% 40%,transparent 55%,rgba(0,0,0,.6) 100%)}
+
+  /* ============ LAYOUT ============ */
+  header{position:relative;z-index:2;text-align:center;padding:64px 20px 8px}
+  header h1{font-size:clamp(28px,4vw,44px);font-weight:600;letter-spacing:-.02em;
+    background:linear-gradient(120deg,#fff 20%,#9aa3b2 50%,#fff 80%);
+    background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:shine 6s linear infinite}
+  @keyframes shine{to{background-position:-200% 0}}
+  header p{margin-top:10px;color:#8b93a1;font-size:15px}
+
+  .grid{
+    position:relative;z-index:2;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+    gap:28px;max-width:1240px;margin:40px auto 80px;padding:0 28px;
+  }
+  .cell{
+    position:relative;border-radius:32px;min-height:300px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+    background:linear-gradient(170deg,rgba(255,255,255,.05),rgba(255,255,255,.012) 40%,rgba(0,0,0,.22));
+    -webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);
+    box-shadow:0 24px 60px -22px rgba(0,0,0,.8),
+      inset 0 1px 0 rgba(255,255,255,.14),
+      inset 0 -1px 0 rgba(255,255,255,.04);
+    overflow:hidden;
+  }
+  .cell .name{position:absolute;top:18px;left:24px;font-size:12.5px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;color:#7e8795}
+  .cell .hint{position:absolute;bottom:16px;font-size:12.5px;color:#5d6570}
+
+  @property --a{syntax:'<angle>';inherits:true;initial-value:0deg}
+  @property --dir{syntax:'<angle>';inherits:true;initial-value:0deg}
+
+  /* wspólny płynący stroke */
+  .iri{position:absolute;inset:0;border-radius:inherit;padding:1.25px;pointer-events:none;
+    background:conic-gradient(from calc(var(--dir) + var(--a)),
+      rgba(255,255,255,.95),rgba(255,255,255,.12) 9%,
+      rgba(255,166,128,.85) 15%,rgba(255,255,255,.08) 24%,
+      rgba(255,255,255,.75) 33%,rgba(126,178,255,.9) 43%,
+      rgba(255,255,255,.06) 53%,rgba(255,255,255,.9) 63%,
+      rgba(214,150,255,.6) 73%,rgba(255,255,255,.08) 83%,
+      rgba(255,224,160,.7) 92%,rgba(255,255,255,.95));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+            mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+            mask-composite:exclude;
+    animation:flow 9s linear infinite}
+  .iri.glowy{inset:-2px;padding:3.5px;filter:blur(7px);opacity:.85}
+  @keyframes flow{to{--a:360deg}}
+
+  /* ============ 1. MAGNETIC ============ */
+  .magnet{
+    position:relative;width:280px;height:92px;border-radius:46px;border:0;cursor:pointer;
+    color:#fff;font:500 22px/1 inherit;letter-spacing:-.01em;
+    background:linear-gradient(172deg,rgba(255,255,255,.09),rgba(255,255,255,.02) 30%,rgba(8,8,10,.35) 60%,rgba(255,255,255,.05));
+    -webkit-backdrop-filter:blur(24px) saturate(1.6);backdrop-filter:blur(24px) saturate(1.6);
+    box-shadow:0 26px 60px -18px rgba(0,0,0,.85),
+      inset 0 1px 0 rgba(255,255,255,.25),
+      inset 0 -20px 34px -28px rgba(255,255,255,.22);
+    will-change:transform;
+    text-shadow:0 1px 2px rgba(0,0,0,.5);
+  }
+  .magnet .iri,.magnet .iri.glowy{animation-duration:7s}
+
+  /* ============ 2. CHROME ORB ============ */
+  .orbwrap{position:relative;width:190px;height:190px;border-radius:50%}
+  .orbwrap canvas{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;display:block;
+    box-shadow:0 24px 50px -14px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.10)}
+  .orbwrap .rim{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+    box-shadow:inset 0 2px 3px rgba(255,255,255,.5),
+      inset 0 12px 20px -10px rgba(255,255,255,.28),
+      inset 0 -10px 18px -8px rgba(0,0,0,.55)}
+
+  /* ============ 3. TILT CARD ============ */
+  .tcard{
+    position:relative;width:300px;height:200px;border-radius:26px;cursor:pointer;
+    background:linear-gradient(168deg,rgba(255,255,255,.10),rgba(255,255,255,.02) 35%,rgba(6,7,9,.4) 70%,rgba(255,255,255,.05));
+    -webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
+    box-shadow:0 30px 70px -22px rgba(0,0,0,.9),
+      inset 0 1px 0 rgba(255,255,255,.22);
+    transform-style:preserve-3d;will-change:transform;
+    display:flex;flex-direction:column;justify-content:flex-end;padding:22px;gap:6px;
+  }
+  .tcard .glare{position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:radial-gradient(220px 160px at var(--gx,50%) var(--gy,30%),
+      rgba(255,255,255,.28),rgba(255,255,255,.06) 45%,transparent 70%);
+    mix-blend-mode:screen}
+  .tcard .chip{width:44px;height:32px;border-radius:8px;margin-bottom:auto;
+    background:linear-gradient(135deg,#f6f7f9,#9aa1ab 45%,#f2f4f7 55%,#7d8590);
+    box-shadow:inset 0 1px 1px #fff,0 4px 10px -3px rgba(0,0,0,.6);
+    transform:translateZ(34px)}
+  .tcard b{font-size:19px;font-weight:600;letter-spacing:-.01em;transform:translateZ(26px)}
+  .tcard span{font-size:12.5px;color:#98a0ae;transform:translateZ(20px)}
+
+  /* ============ 4. TOGGLE ============ */
+  .toggle{position:relative;width:200px;height:96px;border-radius:48px;border:0;cursor:pointer;
+    background:linear-gradient(172deg,rgba(255,255,255,.07),rgba(255,255,255,.015) 35%,rgba(6,7,9,.4));
+    -webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);
+    box-shadow:0 22px 50px -16px rgba(0,0,0,.85),
+      inset 0 2px 4px rgba(0,0,0,.5),
+      inset 0 -1px 0 rgba(255,255,255,.14),
+      inset 0 1px 0 rgba(255,255,255,.06);
+    transition:box-shadow .5s ease}
+  .toggle .track-on{position:absolute;inset:0;border-radius:inherit;opacity:0;transition:opacity .55s ease;
+    background:linear-gradient(90deg,rgba(96,140,255,.30),rgba(190,120,255,.28),rgba(255,150,90,.26));
+    filter:saturate(1.3)}
+  .toggle.on .track-on{opacity:1}
+  .toggle .knob{position:absolute;top:8px;left:8px;width:80px;height:80px;border-radius:50%;
+    transition:transform .6s cubic-bezier(.3,1.6,.35,1);will-change:transform}
+  .toggle.on .knob{transform:translateX(104px)}
+  .toggle .knob canvas{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;display:block;
+    box-shadow:0 10px 24px -6px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.12)}
+  .toggle .knob .rim{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+    box-shadow:inset 0 2px 2px rgba(255,255,255,.5),inset 0 -6px 12px -5px rgba(0,0,0,.5)}
+  .toggle.on{box-shadow:0 22px 55px -14px rgba(80,120,255,.35),
+      0 22px 50px -16px rgba(0,0,0,.85),
+      inset 0 2px 4px rgba(0,0,0,.4),
+      inset 0 -1px 0 rgba(255,255,255,.2)}
+
+  /* ============ 5. SLIDER ============ */
+  .sliderbox{width:82%;max-width:320px;position:relative;padding:30px 0}
+  .strack{position:relative;height:18px;border-radius:9px;cursor:pointer;
+    background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(30,32,38,.5));
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.7),inset 0 -1px 0 rgba(255,255,255,.10),
+      0 1px 0 rgba(255,255,255,.06)}
+  .sfill{position:absolute;left:0;top:0;bottom:0;border-radius:inherit;width:60%;
+    background:linear-gradient(90deg,#5e8bff,#b678ff 55%,#ff9a5e);
+    box-shadow:0 0 18px rgba(140,140,255,.5);
+    filter:saturate(1.2)}
+  .sthumb{position:absolute;top:50%;left:60%;width:56px;height:56px;margin:-28px 0 0 -28px;
+    border-radius:50%;will-change:transform;cursor:grab}
+  .sthumb:active{cursor:grabbing}
+  .sthumb canvas{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;display:block;
+    box-shadow:0 12px 26px -8px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.14)}
+  .sthumb .rim{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+    box-shadow:inset 0 2px 2px rgba(255,255,255,.55),inset 0 -6px 10px -4px rgba(0,0,0,.5)}
+  .sval{position:absolute;top:-16px;left:60%;transform:translateX(-50%);
+    font-size:13px;font-weight:600;color:#c9d1de;font-variant-numeric:tabular-nums}
+
+  /* ============ 6. DOCK ============ */
+  .dock{position:relative;display:flex;align-items:flex-end;gap:14px;height:120px;padding:0 10px}
+  .dock .app{
+    position:relative;width:64px;height:64px;border-radius:18px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:28px;
+    background:linear-gradient(168deg,rgba(255,255,255,.12),rgba(255,255,255,.03) 40%,rgba(6,7,9,.4));
+    -webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);
+    box-shadow:0 14px 30px -10px rgba(0,0,0,.8),
+      inset 0 1px 0 rgba(255,255,255,.28),
+      inset 0 -8px 14px -10px rgba(255,255,255,.18);
+    transform-origin:bottom center;will-change:transform;
+    transition:box-shadow .3s ease}
+  .dock .app::after{content:"";position:absolute;top:104%;left:8%;right:8%;height:40%;
+    border-radius:inherit;transform:scaleY(-1);opacity:.18;pointer-events:none;
+    background:inherit;filter:blur(2px);
+    mask:linear-gradient(#000,transparent 70%)}
+  .dockbar{position:absolute;bottom:-14px;left:-6px;right:-6px;height:8px;border-radius:4px;
+    background:rgba(255,255,255,.05);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.05)}
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important}
+  }
+</style>
+</head>
+<body>
+
+<div class="scene"><div class="glow a"></div><div class="glow b"></div><div class="glow c"></div></div>
+<div class="vignette"></div>
+
+<header>
+  <h1>Motion Lab</h1>
+  <p>Sześć komponentów black metallic glass — każdy reaguje na ruch kursora</p>
+</header>
+
+<div class="grid">
+
+  <!-- 1 MAGNETIC -->
+  <div class="cell" id="cellMagnet">
+    <span class="name">01 · Magnetic</span>
+    <button class="magnet" id="magnet">
+      <span class="iri glowy"></span><span class="iri"></span>
+      Przyciągnij mnie
+    </button>
+    <span class="hint">przycisk ciągnie do kursora, stroke celuje w twoją stronę</span>
+  </div>
+
+  <!-- 2 CHROME ORB -->
+  <div class="cell" id="cellOrb">
+    <span class="name">02 · Liquid Orb</span>
+    <div class="orbwrap" id="orb">
+      <canvas></canvas><span class="rim"></span>
+    </div>
+    <span class="hint">metal przelewa się w stronę kursora</span>
+  </div>
+
+  <!-- 3 TILT CARD -->
+  <div class="cell" id="cellCard">
+    <span class="name">03 · Tilt Card</span>
+    <div class="tcard" id="tcard">
+      <span class="glare"></span>
+      <div class="chip"></div>
+      <b>Obsidian Black</b>
+      <span>glass · metal · parallax 3D</span>
+    </div>
+    <span class="hint">karta pochyla się, blik podąża za palcem</span>
+  </div>
+
+  <!-- 4 TOGGLE -->
+  <div class="cell">
+    <span class="name">04 · Glass Toggle</span>
+    <button class="toggle" id="toggle" aria-pressed="false" aria-label="Przełącznik">
+      <span class="track-on"></span>
+      <span class="knob"><canvas></canvas><span class="rim"></span></span>
+    </button>
+    <span class="hint">kliknij — chromowa gałka skacze ze sprężyną</span>
+  </div>
+
+  <!-- 5 SLIDER -->
+  <div class="cell">
+    <span class="name">05 · Dispersion Slider</span>
+    <div class="sliderbox">
+      <div class="strack" id="strack">
+        <div class="sfill" id="sfill"></div>
+        <div class="sval" id="sval">60</div>
+        <div class="sthumb" id="sthumb"><canvas></canvas><span class="rim"></span></div>
+      </div>
+    </div>
+    <span class="hint">przeciągnij — gałka pochyla się od prędkości</span>
+  </div>
+
+  <!-- 6 DOCK -->
+  <div class="cell">
+    <span class="name">06 · Magnify Dock</span>
+    <div class="dock" id="dock">
+      <div class="app">✦</div><div class="app">◐</div><div class="app">▲</div>
+      <div class="app">✧</div><div class="app">●</div>
+      <div class="dockbar"></div>
+    </div>
+    <span class="hint">ikony rosną przy kursorze jak w macOS</span>
+  </div>
+
+</div>
+
+<script>
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const lerp=(a,b,t)=>a+(b-a)*t;
+
+/* ============================================================
+   Wspólny shader: chromatic liquid metal z uniformem u_mouse.
+   Kierunek przepływu i dyspersja reagują na kursor.
+   ============================================================ */
+function ChromeDisc(canvas,{scale=0.62,speed=1}={}){
+  const gl=canvas.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:true});
+  if(!gl){canvas.style.background='radial-gradient(circle at 35% 30%,#fff,#111 70%)';return {set(){}}}
+
+  const vs=`attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}`;
+  const fs=`
+  precision highp float;
+  uniform vec2 u_res;uniform float u_time;uniform vec2 u_mouse;uniform float u_scale;
+  #define TAU 6.28318530718
+  float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+  float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+    return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),
+               mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
+  float fbm(vec2 p){float v=0.,a=.5;
+    for(int i=0;i<4;i++){v+=a*noise(p);p*=2.03;a*=.5;}return v;}
+  float bands(float t){
+    float s=sin(t*TAU);float s2=sin(t*TAU*2.0+1.7)*.25;
+    float v=s*.85+s2;
+    return mix(smoothstep(-.85,.85,v),smoothstep(-.22,.22,v),.30);}
+  float field(vec2 p,float phase){
+    float T=u_time;
+    vec2 w=vec2(fbm(p*1.1+vec2(0.0,T*.055)),fbm(p*1.1+vec2(5.2,-T*.045)));
+    vec2 q=p+(w-.5)*.85+u_mouse*.45;          /* kursor przesuwa ciecz */
+    float ang=.62+.14*sin(T*.13)+u_mouse.x*.5; /* i skręca kierunek pasm */
+    mat2 R=mat2(cos(ang),-sin(ang),sin(ang),cos(ang));
+    q=R*q;q.y*=.5;
+    float t=q.x*.80+.18*sin(q.y*3.5+T*.32)
+      +.06*sin((q.x+q.y)*7.0-T*.5)+T*.045+phase;
+    return bands(t);}
+  void main(){
+    vec2 uv=gl_FragCoord.xy/u_res;
+    vec2 p=(uv-.5)*2.0;p.x*=u_res.x/u_res.y;
+    float d=length(p);
+    float aa=2.0/min(u_res.x,u_res.y);
+    float mask=1.0-smoothstep(1.0-aa*1.5,1.0,d);
+    if(mask<=0.0){gl_FragColor=vec4(0.0);return;}
+    float m=length(u_mouse);
+    float split=.05+.06*smoothstep(.3,1.0,d)+m*.03; /* ruch = więcej dyspersji */
+    vec2 sp=p*u_scale;
+    vec3 col=vec3(field(sp,split),field(sp,0.0),field(sp,-split));
+    col=pow(col,vec3(1.08));col=col*.92+.06;
+    col=mix(col,col*vec3(1.04,1.0,1.07),.5);
+    float sphere=sqrt(max(0.,1.-d*d));
+    col*=.72+.34*sphere;
+    col*=1.0-.18*smoothstep(.78,1.0,d);
+    float ring=smoothstep(.86,.90,d)*(1.0-smoothstep(.965,1.0,d));
+    float rl=.5+.5*sin(atan(p.y,p.x)*3.0+u_time*.4+1.2);
+    col=mix(col,vec3(.15+.85*rl),ring*.85);
+    float spec=pow(max(0.,1.0-length(p-vec2(-.42,.5)-u_mouse*.25)),3.0);
+    col+=spec*.5;
+    float fr=smoothstep(.90,1.0,d)*(1.0-smoothstep(.985,1.0,d));
+    float hue=atan(p.y,p.x)/TAU+u_time*.03;
+    col+=(.5+.5*cos(TAU*(hue+vec3(0.,.33,.67))))*fr*.35;
+    gl_FragColor=vec4(col*mask,mask);}`;
+
+  function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);
+    if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(o));return o}
+  const pr=gl.createProgram();
+  gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));
+  gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));
+  gl.linkProgram(pr);gl.useProgram(pr);
+  gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const lp=gl.getAttribLocation(pr,'p');
+  gl.enableVertexAttribArray(lp);gl.vertexAttribPointer(lp,2,gl.FLOAT,false,0,0);
+  const uR=gl.getUniformLocation(pr,'u_res'),uT=gl.getUniformLocation(pr,'u_time'),
+        uM=gl.getUniformLocation(pr,'u_mouse'),uS=gl.getUniformLocation(pr,'u_scale');
+  gl.uniform1f(uS,scale);
+
+  let mx=0,my=0,tx=0,ty=0;
+  function resize(){
+    const dpr=Math.min(devicePixelRatio||1,2.5);
+    const r=canvas.getBoundingClientRect();
+    const w=Math.max(2,Math.round(r.width*dpr)),h=Math.max(2,Math.round(r.height*dpr));
+    if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}
+  }
+  new ResizeObserver(resize).observe(canvas);resize();
+  const t0=performance.now();
+  function frame(now){
+    resize();
+    mx=lerp(mx,tx,.08);my=lerp(my,ty,.08);
+    gl.uniform2f(uR,canvas.width,canvas.height);
+    gl.uniform1f(uT,(now-t0)/1000*speed);
+    gl.uniform2f(uM,mx,my);
+    gl.drawArrays(gl.TRIANGLES,0,3);
+    if(!REDUCED)requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  return {set(x,y){tx=Math.max(-1,Math.min(1,x));ty=Math.max(-1,Math.min(1,y))}};
+}
+
+/* globalna pozycja kursora */
+let PX=innerWidth/2,PY=innerHeight/2;
+addEventListener('pointermove',e=>{PX=e.clientX;PY=e.clientY},{passive:true});
+
+/* ============ 1. MAGNETIC ============ */
+(function(){
+  const btn=document.getElementById('magnet');
+  const cell=document.getElementById('cellMagnet');
+  let x=0,y=0;
+  function tick(){
+    const r=btn.getBoundingClientRect();
+    const cx=r.left+r.width/2,cy=r.top+r.height/2;
+    const dx=PX-cx,dy=PY-cy;
+    const dist=Math.hypot(dx,dy);
+    const pull=Math.max(0,1-dist/300);
+    x=lerp(x,dx*pull*.35,.12);
+    y=lerp(y,dy*pull*.35,.12);
+    btn.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scale(${1+pull*.05})`;
+    /* stroke celuje w kursor */
+    const ang=Math.atan2(dy,dx)*180/Math.PI+90;
+    cell.style.setProperty('--dir',ang.toFixed(1)+'deg');
+    if(!REDUCED)requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ============ 2. ORB ============ */
+(function(){
+  const wrap=document.getElementById('orb');
+  const disc=ChromeDisc(wrap.querySelector('canvas'),{scale:.55});
+  function tick(){
+    const r=wrap.getBoundingClientRect();
+    const x=(PX-(r.left+r.width/2))/(r.width*1.2);
+    const y=-(PY-(r.top+r.height/2))/(r.height*1.2);
+    disc.set(x,y);
+    if(!REDUCED)requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ============ 3. TILT CARD ============ */
+(function(){
+  const card=document.getElementById('tcard');
+  const cell=document.getElementById('cellCard');
+  let rx=0,ry=0,trx=0,try_=0;
+  cell.addEventListener('pointermove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5;
+    const y=(e.clientY-r.top)/r.height-.5;
+    trx=-y*14;try_=x*16;
+    card.style.setProperty('--gx',((x+.5)*100)+'%');
+    card.style.setProperty('--gy',((y+.5)*100)+'%');
+  });
+  cell.addEventListener('pointerleave',()=>{trx=0;try_=0});
+  function tick(){
+    rx=lerp(rx,trx,.1);ry=lerp(ry,try_,.1);
+    card.style.transform=`perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+    if(!REDUCED)requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ============ 4. TOGGLE ============ */
+(function(){
+  const t=document.getElementById('toggle');
+  ChromeDisc(t.querySelector('canvas'),{scale:.85,speed:1.3});
+  t.addEventListener('click',()=>{
+    const on=t.classList.toggle('on');
+    t.setAttribute('aria-pressed',on);
+  });
+})();
+
+/* ============ 5. SLIDER ============ */
+(function(){
+  const track=document.getElementById('strack');
+  const fill=document.getElementById('sfill');
+  const thumb=document.getElementById('sthumb');
+  const val=document.getElementById('sval');
+  ChromeDisc(thumb.querySelector('canvas'),{scale:1.0,speed:1.4});
+  let v=.6,tv=.6,vel=0,drag=false;
+
+  function setFromEvent(e){
+    const r=track.getBoundingClientRect();
+    tv=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+  }
+  track.addEventListener('pointerdown',e=>{drag=true;track.setPointerCapture(e.pointerId);setFromEvent(e)});
+  track.addEventListener('pointermove',e=>{if(drag)setFromEvent(e)});
+  addEventListener('pointerup',()=>drag=false);
+
+  function tick(){
+    const prev=v;
+    v=lerp(v,tv,.16);
+    vel=lerp(vel,(v-prev)*400,.3);
+    const pct=(v*100);
+    fill.style.width=pct+'%';
+    thumb.style.left=pct+'%';
+    val.style.left=pct+'%';
+    val.textContent=Math.round(pct);
+    /* pochylenie od prędkości */
+    thumb.style.transform=`rotate(${Math.max(-18,Math.min(18,vel)).toFixed(1)}deg) scale(${drag?1.12:1})`;
+    if(!REDUCED)requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ============ 6. DOCK ============ */
+(function(){
+  const dock=document.getElementById('dock');
+  const apps=[...dock.querySelectorAll('.app')];
+  const scales=apps.map(()=>({s:1,t:1}));
+  dock.addEventListener('pointermove',e=>{
+    apps.forEach((a,i)=>{
+      const r=a.getBoundingClientRect();
+      const d=Math.abs(e.clientX-(r.left+r.width/2));
+      scales[i].t=1+Math.max(0,1-d/140)*.65;
+    });
+  });
+  dock.addEventListener('pointerleave',()=>scales.forEach(o=>o.t=1));
+  function tick(){
+    apps.forEach((a,i)=>{
+      const o=scales[i];
+      o.s=lerp(o.s,o.t,.18);
+      a.style.transform=`scale(${o.s.toFixed(3)}) translateY(${(-(o.s-1)*14).toFixed(1)}px)`;
+    });
+    if(!REDUCED)requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* parallax łun globalny */
+(function(){
+  if(REDUCED)return;
+  const glows=document.querySelectorAll('.glow');
+  addEventListener('pointermove',e=>{
+    const cx=e.clientX/innerWidth-.5,cy=e.clientY/innerHeight-.5;
+    glows.forEach((g,i)=>{const k=(i+1)*12;
+      g.style.translate=`${(cx*k).toFixed(1)}px ${(cy*k).toFixed(1)}px`});
+  },{passive:true});
+})();
+</script>
+</body>
+</html>

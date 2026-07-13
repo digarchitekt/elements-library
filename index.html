@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elements Library — Black Metallic Glass UI</title>
+<meta name="description" content="Kolekcja interaktywnych komponentów UI: liquid glass, chrome shadery, magnetyczne przyciski, particle fields. Vanilla HTML/CSS/JS, zero zależności.">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{min-height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Inter,sans-serif;
+    background:#0b0c0e;color:#eef1f6;overflow-x:hidden;
+  }
+  .scene{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .scene::before{content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(140% 110% at 30% -10%,#22252b 0%,transparent 55%),
+      radial-gradient(120% 120% at 80% 110%,#131418 0%,transparent 60%),
+      linear-gradient(155deg,#16181c 0%,#0e0f12 55%,#0a0b0d 100%)}
+  .scene::after{content:"";position:absolute;inset:-50%;
+    background:repeating-linear-gradient(115deg,rgba(255,255,255,.017) 0 1px,transparent 1px 3px);
+    mix-blend-mode:screen}
+  .vignette{position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:radial-gradient(130% 100% at 50% 40%,transparent 55%,rgba(0,0,0,.6) 100%)}
+
+  header{position:relative;z-index:2;text-align:center;padding:88px 20px 10px}
+  h1{font-size:clamp(34px,5vw,58px);font-weight:700;letter-spacing:-.03em;
+    background:linear-gradient(120deg,#fff 15%,#8f98a8 45%,#fff 75%);
+    background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:shine 7s linear infinite}
+  @keyframes shine{to{background-position:-220% 0}}
+  header p{margin:14px auto 0;color:#8b93a1;font-size:16px;max-width:620px;line-height:1.55}
+  header code{background:rgba(255,255,255,.06);padding:2px 8px;border-radius:6px;font-size:13.5px}
+
+  .list{position:relative;z-index:2;max-width:860px;margin:56px auto 100px;padding:0 24px;
+    display:flex;flex-direction:column;gap:18px}
+  .item{
+    position:relative;display:block;text-decoration:none;color:inherit;
+    border-radius:26px;padding:26px 30px;overflow:hidden;
+    background:linear-gradient(170deg,rgba(255,255,255,.05),rgba(255,255,255,.012) 40%,rgba(0,0,0,.22));
+    -webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);
+    box-shadow:0 20px 50px -20px rgba(0,0,0,.8),
+      inset 0 1px 0 rgba(255,255,255,.12);
+    transition:transform .35s cubic-bezier(.3,1.3,.4,1);
+    --mx:50%;--my:50%;
+  }
+  .item:hover{transform:translateY(-3px)}
+  .item .edge{position:absolute;inset:0;border-radius:inherit;padding:1.15px;pointer-events:none;
+    background:radial-gradient(240px 240px at var(--mx) var(--my),
+      rgba(150,185,255,.85),rgba(150,185,255,.10) 55%,transparent 80%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+            mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+            mask-composite:exclude}
+  .item .row{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .item .no{font-size:12px;font-weight:700;letter-spacing:.14em;color:#6a7280}
+  .item h2{font-size:22px;font-weight:600;letter-spacing:-.015em}
+  .item .go{margin-left:auto;color:#9fb4ff;font-size:18px;
+    transform:translateX(-6px);opacity:0;transition:all .3s cubic-bezier(.3,1.3,.4,1)}
+  .item:hover .go{transform:none;opacity:1}
+  .item p{margin-top:8px;font-size:14px;color:#8b93a1;line-height:1.55;max-width:640px}
+  .item .tags{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+  .item .tag{font-size:11px;font-weight:600;letter-spacing:.06em;color:#aab6cc;
+    background:rgba(255,255,255,.055);padding:4px 10px;border-radius:20px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+
+  footer{position:relative;z-index:2;text-align:center;padding:0 20px 70px;
+    color:#565e6a;font-size:13px;line-height:1.7}
+  footer a{color:#8fa3d9;text-decoration:none}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+
+<div class="scene"></div>
+<div class="vignette"></div>
+
+<header>
+  <h1>Elements Library</h1>
+  <p>Kolekcja interaktywnych komponentów UI w estetyce black metallic glass.
+  Czysty HTML/CSS/JS + WebGL — <code>zero zależności</code>, każdy plik działa samodzielnie po otwarciu w przeglądarce.</p>
+</header>
+
+<div class="list">
+
+  <a class="item" href="components/liquid-glass-button.html">
+    <span class="edge"></span>
+    <div class="row"><span class="no">01</span><h2>Liquid Glass Button</h2><span class="go">→</span></div>
+    <p>Przycisk „Ask agents" — dymione szkło na grafitowym tle, chromatyczny stroke płynący w pętli,
+    chromowy dysk z shaderem liquid metal (WebGL) i tilt 3D za kursorem.</p>
+    <div class="tags"><span class="tag">WebGL</span><span class="tag">glassmorphism</span><span class="tag">shader</span><span class="tag">tilt 3D</span></div>
+  </a>
+
+  <a class="item" href="components/motion-lab-01.html">
+    <span class="edge"></span>
+    <div class="row"><span class="no">02</span><h2>Motion Lab 01 — Chrome & Glass</h2><span class="go">→</span></div>
+    <p>Sześć komponentów reagujących na ruch: magnetyczny przycisk, liquid orb podążający za kursorem,
+    tilt card z blikiem, glass toggle ze sprężyną, dispersion slider i magnify dock.</p>
+    <div class="tags"><span class="tag">magnetic</span><span class="tag">WebGL orb</span><span class="tag">spring</span><span class="tag">dock</span></div>
+  </a>
+
+  <a class="item" href="components/motion-lab-02.html">
+    <span class="edge"></span>
+    <div class="row"><span class="no">03</span><h2>Motion Lab 02 — Fresh Interactions</h2><span class="go">→</span></div>
+    <p>Świeże wzorce bez chromu: spotlight card, elastyczne tabsy rozciągane jak guma,
+    particle field ze sprężyną, rotary knob, gooey FAB i kinetic text falujący pod kursorem.</p>
+    <div class="tags"><span class="tag">spotlight</span><span class="tag">particles</span><span class="tag">goo filter</span><span class="tag">kinetic type</span></div>
+  </a>
+
+  <a class="item" href="components/preiscale-components.html">
+    <span class="edge"></span>
+    <div class="row"><span class="no">04</span><h2>PreiScale — komponenty strony MVP</h2><span class="go">→</span></div>
+    <p>Zestaw brandowy: magnetyczne CTA audytu, animowany proces 4 kroków, wizualizacja chaos→przepływ,
+    kalkulator odzyskanego czasu, karty pilotaży i pulpit właściciela z żywymi słupkami.</p>
+    <div class="tags"><span class="tag">branding</span><span class="tag">kalkulator</span><span class="tag">canvas</span><span class="tag">landing</span></div>
+  </a>
+
+</div>
+
+<footer>
+  MIT License · vanilla HTML/CSS/JS · najlepiej oglądać w Chrome/Edge<br>
+  Każdy komponent można wyciąć z pliku i wkleić do własnego projektu.
+</footer>
+
+<script>
+document.querySelectorAll('.item').forEach(it=>{
+  it.addEventListener('pointermove',e=>{
+    const r=it.getBoundingClientRect();
+    it.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+    it.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+  });
+  it.addEventListener('pointerleave',()=>{
+    it.style.setProperty('--mx','50%');it.style.setProperty('--my','160%');
+  });
+});
+</script>
+</body>
+</html>

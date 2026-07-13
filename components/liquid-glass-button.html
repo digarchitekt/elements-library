@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ask agents — Black Metallic Glass</title>
+<style>
+  :root{
+    --w: 620px;
+    --h: 176px;
+    --r: 88px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Inter,sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    background:#0b0c0e;
+    overflow:hidden;
+  }
+
+  /* ================= SCENA: szczotkowany grafit ================= */
+  .scene{position:fixed;inset:0;pointer-events:none}
+  .scene::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(140% 110% at 30% -10%, #2a2d33 0%, transparent 55%),
+      radial-gradient(120% 120% at 80% 110%, #17181c 0%, transparent 60%),
+      linear-gradient(155deg,#1b1d21 0%,#101114 55%,#0a0b0d 100%);
+  }
+  /* włos szczotkowania */
+  .scene::after{
+    content:"";position:absolute;inset:-50%;
+    background:repeating-linear-gradient(115deg,
+      rgba(255,255,255,.022) 0px, rgba(255,255,255,.022) 1px,
+      transparent 1px, transparent 3px);
+    mix-blend-mode:screen;
+  }
+  /* kolorowe łuny za szkłem — to one "refraktują" przez baton */
+  .glow{position:absolute;border-radius:50%;filter:blur(90px);will-change:transform}
+  .glow.a{width:560px;height:560px;left:50%;top:50%;margin:-420px 0 0 -560px;
+    background:radial-gradient(circle,rgba(96,140,255,.32),transparent 65%);
+    animation:orbitA 26s linear infinite}
+  .glow.b{width:520px;height:520px;left:50%;top:50%;margin:-160px 0 0 60px;
+    background:radial-gradient(circle,rgba(255,150,90,.26),transparent 65%);
+    animation:orbitB 33s linear infinite}
+  .glow.c{width:420px;height:420px;left:50%;top:50%;margin:-540px 0 0 40px;
+    background:radial-gradient(circle,rgba(190,120,255,.18),transparent 65%);
+    animation:orbitA 41s linear infinite reverse}
+  @keyframes orbitA{from{transform:rotate(0) translateX(140px) rotate(0)}to{transform:rotate(360deg) translateX(140px) rotate(-360deg)}}
+  @keyframes orbitB{from{transform:rotate(0) translateX(-180px) rotate(0)}to{transform:rotate(-360deg) translateX(-180px) rotate(360deg)}}
+
+  /* winieta */
+  .vignette{position:fixed;inset:0;pointer-events:none;
+    background:radial-gradient(120% 90% at 50% 45%,transparent 55%,rgba(0,0,0,.55) 100%)}
+
+  /* ================= PRZYCISK ================= */
+  @property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+
+  .wrap{position:relative;animation:hover 7s ease-in-out infinite}
+  @keyframes hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+  .btn{
+    position:relative;
+    width:var(--w);height:var(--h);border-radius:var(--r);
+    border:0;cursor:pointer;
+    display:flex;align-items:center;gap:36px;
+    padding:0 52px 0 24px;
+    isolation:isolate;
+    background:linear-gradient(172deg,
+      rgba(255,255,255,.085) 0%,
+      rgba(255,255,255,.028) 24%,
+      rgba(10,10,12,.30) 58%,
+      rgba(255,255,255,.045) 100%);
+    -webkit-backdrop-filter:blur(30px) saturate(1.6) brightness(1.08);
+            backdrop-filter:blur(30px) saturate(1.6) brightness(1.08);
+    box-shadow:
+      0 40px 90px -24px rgba(0,0,0,.85),
+      0 12px 30px -10px rgba(0,0,0,.6),
+      inset 0 1px 0 rgba(255,255,255,.22),
+      inset 0 -1px 0 rgba(255,255,255,.06),
+      inset 0 -26px 44px -34px rgba(255,255,255,.20),
+      inset 0 30px 50px -40px rgba(255,255,255,.28);
+    transition:transform .5s cubic-bezier(.2,.9,.25,1.15), box-shadow .5s ease;
+    will-change:transform;
+  }
+  .btn:active{transform:scale(.984)}
+  .btn:focus-visible{outline:2px solid rgba(150,180,255,.9);outline-offset:8px}
+
+  /* --- 1. płynący chromatyczny stroke (cienki, srebrny z błyskami) --- */
+  .btn .stroke{
+    position:absolute;inset:0;border-radius:inherit;padding:1.25px;pointer-events:none;
+    background:conic-gradient(from var(--a),
+      rgba(255,255,255,.95) 0deg,
+      rgba(255,255,255,.14) 28deg,
+      rgba(255,166,128,.85) 52deg,
+      rgba(255,255,255,.10) 84deg,
+      rgba(255,255,255,.75) 118deg,
+      rgba(126,178,255,.9) 152deg,
+      rgba(255,255,255,.08) 190deg,
+      rgba(255,255,255,.9) 226deg,
+      rgba(214,150,255,.6) 262deg,
+      rgba(255,255,255,.10) 300deg,
+      rgba(255,224,160,.7) 330deg,
+      rgba(255,255,255,.95) 360deg);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+            mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+            mask-composite:exclude;
+    animation:flow 9s linear infinite;
+  }
+  /* miękkie halo stroke'a */
+  .btn .stroke-glow{
+    position:absolute;inset:-2px;border-radius:inherit;padding:3.5px;pointer-events:none;
+    background:conic-gradient(from var(--a),
+      rgba(255,166,128,.55),transparent 22%,
+      rgba(126,178,255,.6) 40%,transparent 62%,
+      rgba(214,150,255,.4) 78%,transparent 92%,
+      rgba(255,166,128,.55));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+            mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+            mask-composite:exclude;
+    filter:blur(7px);opacity:.9;
+    animation:flow 9s linear infinite;
+  }
+  @keyframes flow{to{--a:360deg}}
+
+  /* --- 2. refrakcja krawędzi: światło łamie się przy brzegach batonu --- */
+  .btn .refract{
+    position:absolute;inset:0;border-radius:inherit;pointer-events:none;overflow:hidden;
+  }
+  .btn .refract::before{
+    content:"";position:absolute;inset:0;border-radius:inherit;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.05),
+      inset 0 14px 24px -18px rgba(255,255,255,.55),
+      inset 0 -16px 30px -22px rgba(255,255,255,.35),
+      inset 22px 0 40px -34px rgba(255,255,255,.30),
+      inset -22px 0 40px -34px rgba(255,255,255,.30);
+  }
+  /* tęczowa dyspersja tuż przy wewnętrznej krawędzi */
+  .btn .refract::after{
+    content:"";position:absolute;inset:1px;border-radius:inherit;padding:5px;
+    background:conic-gradient(from calc(var(--a) + 160deg),
+      rgba(255,90,90,.28),rgba(255,200,90,.22),rgba(120,255,190,.20),
+      rgba(110,170,255,.30),rgba(220,120,255,.24),rgba(255,90,90,.28));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+            mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+            mask-composite:exclude;
+    filter:blur(3px);
+    mix-blend-mode:screen;opacity:.55;
+    animation:flow 9s linear infinite;
+  }
+
+  /* --- 3. wędrujący blik (specular sweep) --- */
+  .btn .sheen{
+    position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;
+    mix-blend-mode:screen;
+  }
+  .btn .sheen::before{
+    content:"";position:absolute;top:-40%;bottom:-40%;left:-30%;width:34%;
+    background:linear-gradient(100deg,transparent,
+      rgba(255,255,255,.10) 35%,rgba(255,255,255,.32) 50%,
+      rgba(255,255,255,.10) 65%,transparent);
+    transform:skewX(-18deg);
+    animation:sweep 6.5s cubic-bezier(.6,.1,.3,.9) infinite;
+  }
+  @keyframes sweep{
+    0%,55%{left:-40%}
+    85%,100%{left:135%}
+  }
+
+  /* ================= CHROMOWY DYSK ================= */
+  .disc{position:relative;width:142px;height:142px;flex:0 0 auto;border-radius:50%;
+    transform:translateZ(40px)}
+  .disc canvas{
+    position:absolute;inset:0;width:100%;height:100%;border-radius:50%;display:block;
+    box-shadow:
+      0 16px 34px -10px rgba(0,0,0,.8),
+      0 0 0 1px rgba(255,255,255,.10);
+  }
+  /* szklana fazka nad metalem */
+  .disc .glassrim{
+    position:absolute;inset:0;border-radius:50%;pointer-events:none;
+    box-shadow:
+      inset 0 2px 3px rgba(255,255,255,.55),
+      inset 0 10px 18px -8px rgba(255,255,255,.30),
+      inset 0 -8px 16px -6px rgba(0,0,0,.55),
+      inset 0 0 0 1px rgba(255,255,255,.12);
+  }
+  .disc .star{
+    position:absolute;inset:0;margin:auto;width:52px;height:52px;
+    filter:drop-shadow(0 4px 10px rgba(0,0,0,.5)) drop-shadow(0 0 18px rgba(140,170,255,.35));
+    animation:breath 5s ease-in-out infinite;
+  }
+  @keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
+  .label{
+    color:#fff;font-size:44px;font-weight:500;letter-spacing:-.02em;
+    text-shadow:0 1px 2px rgba(0,0,0,.5),0 6px 22px rgba(0,0,0,.45);
+    transform:translateZ(24px);user-select:none;white-space:nowrap;
+  }
+  .chev{margin-left:auto;width:28px;height:28px;transform:translateZ(24px);
+    transition:transform .35s ease}
+  .btn:hover .chev{transform:translateZ(24px) translateY(3px)}
+  .chev path{stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;fill:none;
+    filter:drop-shadow(0 2px 5px rgba(0,0,0,.5))}
+
+  @media (max-width:720px){
+    :root{--w:90vw;--h:118px;--r:59px}
+    .disc{width:86px;height:86px}
+    .disc .star{width:35px;height:35px}
+    .label{font-size:28px}
+    .btn{gap:22px;padding:0 32px 0 16px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .wrap,.btn .stroke,.btn .stroke-glow,.btn .refract::after,
+    .btn .sheen::before,.disc .star,.glow{animation:none !important}
+  }
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="glow a"></div>
+  <div class="glow b"></div>
+  <div class="glow c"></div>
+</div>
+<div class="vignette"></div>
+
+<div class="wrap">
+  <button class="btn" id="btn" aria-label="Ask agents">
+    <span class="stroke-glow"></span>
+    <span class="stroke"></span>
+    <span class="refract"></span>
+    <span class="sheen"></span>
+
+    <span class="disc">
+      <canvas id="chrome"></canvas>
+      <span class="glassrim"></span>
+      <svg class="star" viewBox="0 0 64 64" aria-hidden="true">
+        <defs>
+          <linearGradient id="sg" x1="0" y1="0" x2="0.35" y2="1">
+            <stop offset="0%"  stop-color="#ffb066"/>
+            <stop offset="34%" stop-color="#fff7ee"/>
+            <stop offset="60%" stop-color="#eef4ff"/>
+            <stop offset="100%" stop-color="#3861ff"/>
+          </linearGradient>
+          <radialGradient id="sh" cx="0.35" cy="0.28" r="0.5">
+            <stop offset="0%" stop-color="#fff" stop-opacity=".9"/>
+            <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <path fill="url(#sg)" d="M32 1.5 C34.3 16.2 39.4 24.9 48.6 28.3 L62.5 32 L48.6 35.7 C39.4 39.1 34.3 47.8 32 62.5 C29.7 47.8 24.6 39.1 15.4 35.7 L1.5 32 L15.4 28.3 C24.6 24.9 29.7 16.2 32 1.5 Z"/>
+        <path fill="url(#sh)" d="M32 1.5 C34.3 16.2 39.4 24.9 48.6 28.3 L62.5 32 L48.6 35.7 C39.4 39.1 34.3 47.8 32 62.5 C29.7 47.8 24.6 39.1 15.4 35.7 L1.5 32 L15.4 28.3 C24.6 24.9 29.7 16.2 32 1.5 Z"/>
+      </svg>
+    </span>
+
+    <span class="label">Ask agents</span>
+    <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 9 L12 15.5 L18.5 9"/></svg>
+  </button>
+</div>
+
+<script>
+/* ============================================================
+   CHROMATIC LIQUID METAL — WebGL fragment shader
+   Płynne biało-czarne pasma (liquid chrome) + RGB split
+   na krawędziach pasm, metalowy pierścień i blik w shaderze,
+   maska kołowa z antyaliasingiem. Pętla bezszwowa.
+   ============================================================ */
+(function(){
+  const canvas = document.getElementById('chrome');
+  const gl = canvas.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:true});
+  if(!gl){canvas.style.background='radial-gradient(circle at 35% 30%,#fff,#111 70%)';return;}
+
+  const vs=`attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}`;
+
+  const fs=`
+  precision highp float;
+  uniform vec2 u_res;
+  uniform float u_time;
+
+  #define TAU 6.28318530718
+
+  float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+  float noise(vec2 p){
+    vec2 i=floor(p),f=fract(p);
+    f=f*f*(3.-2.*f);
+    return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),
+               mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);
+  }
+  float fbm(vec2 p){
+    float v=0.,a=.5;
+    for(int i=0;i<4;i++){v+=a*noise(p);p*=2.03;a*=.5;}
+    return v;
+  }
+
+  /* Ostry chrom: naprzemienne pasma z twardymi przejściami.
+     Sterowane funkcjami okresowymi -> bezszwowa pętla. */
+  float bands(float t){
+    float s=sin(t*TAU);
+    float s2=sin(t*TAU*2.0+1.7)*.25;
+    float v=s*.85+s2;
+    /* szeroki, miękki gradient + tylko delikatny rdzeń ostrości */
+    float soft=smoothstep(-.85,.85,v);
+    float crisp=smoothstep(-.22,.22,v);
+    return mix(soft,crisp,.30);
+  }
+
+  float field(vec2 p,float phase){
+    /* domain warp — metal "płynie", wolno i miękko */
+    float T=u_time;
+    vec2 w=vec2(
+      fbm(p*1.1+vec2(0.0,T*.055)),
+      fbm(p*1.1+vec2(5.2,-T*.045)));
+    vec2 q=p+(w-.5)*.85;
+
+    float ang=.62+.14*sin(T*.13);
+    mat2 R=mat2(cos(ang),-sin(ang),sin(ang),cos(ang));
+    q=R*q; q.y*=.5;
+
+    float t=q.x*.80
+      +.18*sin(q.y*3.5+T*.32)
+      +.06*sin((q.x+q.y)*7.0-T*.5)
+      +T*.045+phase;
+    return bands(t);
+  }
+
+  void main(){
+    vec2 uv=gl_FragCoord.xy/u_res;
+    vec2 p=(uv-.5)*2.0;
+    p.x*=u_res.x/u_res.y;
+    float d=length(p);
+
+    /* maska kołowa z AA */
+    float aa=2.0/min(u_res.x,u_res.y);
+    float mask=1.0-smoothstep(1.0-aa*1.5,1.0,d);
+    if(mask<=0.0){gl_FragColor=vec4(0.0);return;}
+
+    /* dyspersja: RGB split rośnie ku brzegom dysku */
+    float split=.05+.06*smoothstep(.3,1.0,d);
+    vec2 sp=p*.62; /* większa skala = szerszy gradient */
+    float r=field(sp,+split);
+    float g=field(sp, 0.0);
+    float b=field(sp,-split);
+    vec3 col=vec3(r,g,b);
+
+    /* łagodna tonalność: podniesione czernie, miękkie biele */
+    col=pow(col,vec3(1.08));
+    col=col*.92+.06;
+    col=mix(col,col*vec3(1.04,1.0,1.07),.5);
+
+    /* kula: delikatne cieniowanie, bez przygaszania środka */
+    float sphere=sqrt(max(0.,1.-d*d));
+    col*=.72+.34*sphere;
+    col*=1.0-.18*smoothstep(.78,1.0,d);
+
+    /* metalowy pierścień na brzegu */
+    float ring=smoothstep(.86,.90,d)*(1.0-smoothstep(.965,1.0,d));
+    float ringLight=.5+.5*sin(atan(p.y,p.x)*3.0+u_time*.4+1.2);
+    col=mix(col,vec3(.15+.85*ringLight),ring*.85);
+
+    /* blik góra-lewo */
+    float spec=pow(max(0.,1.0-length(p-vec2(-.42,.5))),3.0);
+    col+=spec*.5;
+
+    /* subtelna tęcza dyspersji przy samym rancie */
+    float fr=smoothstep(.90,1.0,d)*(1.0-smoothstep(.985,1.0,d));
+    float hue=atan(p.y,p.x)/TAU+u_time*.03;
+    vec3 rainbow=.5+.5*cos(TAU*(hue+vec3(0.,.33,.67)));
+    col+=rainbow*fr*.35;
+
+    gl_FragColor=vec4(col*mask,mask);
+  }`;
+
+  function compile(type,src){
+    const s=gl.createShader(type);
+    gl.shaderSource(s,src);gl.compileShader(s);
+    if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))
+      console.error('Shader:',gl.getShaderInfoLog(s));
+    return s;
+  }
+  const prog=gl.createProgram();
+  gl.attachShader(prog,compile(gl.VERTEX_SHADER,vs));
+  gl.attachShader(prog,compile(gl.FRAGMENT_SHADER,fs));
+  gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS))
+    console.error('Link:',gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const loc=gl.getAttribLocation(prog,'p');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+
+  const uRes=gl.getUniformLocation(prog,'u_res');
+  const uTime=gl.getUniformLocation(prog,'u_time');
+
+  function resize(){
+    const dpr=Math.min(window.devicePixelRatio||1,2.5);
+    const rect=canvas.getBoundingClientRect();
+    const w=Math.max(2,Math.round(rect.width*dpr));
+    const h=Math.max(2,Math.round(rect.height*dpr));
+    if(canvas.width!==w||canvas.height!==h){
+      canvas.width=w;canvas.height=h;
+      gl.viewport(0,0,w,h);
+    }
+  }
+  new ResizeObserver(resize).observe(canvas);
+  resize();
+
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const t0=performance.now();
+  function frame(now){
+    resize();
+    gl.uniform2f(uRes,canvas.width,canvas.height);
+    gl.uniform1f(uTime,(now-t0)/1000);
+    gl.drawArrays(gl.TRIANGLES,0,3);
+    if(!reduced)requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame); /* zawsze min. 1 klatka */
+})();
+
+/* ============ tilt 3D + parallax łun za kursorem ============ */
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const btn=document.getElementById('btn');
+  const glows=document.querySelectorAll('.glow');
+  let raf=null;
+
+  window.addEventListener('pointermove',e=>{
+    const cx=e.clientX/innerWidth-.5;
+    const cy=e.clientY/innerHeight-.5;
+    if(raf)cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(()=>{
+      /* łuny lekko podążają — szkło pokazuje inny fragment tła */
+      glows.forEach((g,i)=>{
+        const k=(i+1)*14;
+        g.style.translate=`${cx*k}px ${cy*k}px`;
+      });
+      const r=btn.getBoundingClientRect();
+      const inX=(e.clientX-r.left)/r.width-.5;
+      const inY=(e.clientY-r.top)/r.height-.5;
+      const inside=inX>-.65&&inX<.65&&inY>-1.2&&inY<1.2;
+      btn.style.transform=inside
+        ?`perspective(1100px) rotateX(${(-inY*6).toFixed(2)}deg) rotateY(${(inX*8).toFixed(2)}deg) scale(1.015)`
+        :'';
+    });
+  });
+  btn.addEventListener('pointerleave',()=>{btn.style.transform=''});
+})();
+</script>
+</body>
+</html>
