@@ -20,6 +20,7 @@ Settings → Pages → Deploy from branch → `main` / root.
 | `components/motion-lab-02.html` | 6 świeżych wzorców: spotlight card, elastic tabs, particle field, rotary knob, gooey FAB, kinetic text |
 | `components/preiscale-components.html` | Zestaw brandowy pod landing: CTA, proces, chaos→przepływ, kalkulator czasu, karty pilotaży, mini-dashboard |
 | `components/luxury-noir-kit.html` | Pełny UI kit „luxury noir": CTA idle→loading→success, segmented control, switch, pole premium z optyczną ramką, toast, stat + sparkline, klikalny proces, karty usług, accordion, paginacja, magnetyczny action dock |
+| `components/metallic-glass-set.html` | Toolkit formularzowy „metallic glass": przyciski (primary/secondary/ghost/icon), szukajka z chromatycznym obrysem, switche, checkboxy, kontrolka segmentowa, suwak z chromowym kciukiem, chipy, pole tekstowe, kafelki z tiltem 3D |
 
 ## Jak używać komponentu we własnym projekcie
 

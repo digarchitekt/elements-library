@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metallic Glass — zestaw komponentów</title>
+<style>
+  /* ============ TOKENY ============ */
+  :root{
+    --bg:#0b0c0e;
+    --ink:#fff;
+    --ink-2:rgba(255,255,255,.62);
+    --ink-3:rgba(255,255,255,.38);
+    --amber:255,166,128;
+    --blue:126,178,255;
+    --violet:214,150,255;
+    --r-card:26px;
+    --ring:0 0 0 2px rgba(150,180,255,.9);
+  }
+  @property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+  @keyframes flow{to{--a:360deg}}
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{color-scheme:dark}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Inter,sans-serif;
+    background:var(--bg);color:var(--ink);
+    min-height:100vh;
+  }
+
+  /* ============ SCENA: szczotkowany grafit ============ */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-3;
+    background:
+      radial-gradient(140% 110% at 28% -10%, #26292f 0%, transparent 55%),
+      radial-gradient(120% 120% at 82% 112%, #16171b 0%, transparent 60%),
+      linear-gradient(155deg,#191b1f 0%,#0f1013 55%,#0a0b0d 100%);
+  }
+  body::after{
+    content:"";position:fixed;inset:-50%;z-index:-2;pointer-events:none;
+    background:repeating-linear-gradient(115deg,
+      rgba(255,255,255,.02) 0px, rgba(255,255,255,.02) 1px,
+      transparent 1px, transparent 3px);
+    mix-blend-mode:screen;
+  }
+  .glow{position:fixed;z-index:-2;border-radius:50%;filter:blur(110px);pointer-events:none;opacity:.6}
+  .glow.a{width:640px;height:640px;top:-18%;left:8%;
+    background:radial-gradient(circle,rgba(var(--blue),.26),transparent 65%);
+    animation:driftA 44s ease-in-out infinite alternate}
+  .glow.b{width:560px;height:560px;bottom:-22%;right:4%;
+    background:radial-gradient(circle,rgba(var(--amber),.20),transparent 65%);
+    animation:driftB 52s ease-in-out infinite alternate}
+  @keyframes driftA{from{transform:translate(0,0)}to{transform:translate(90px,60px)}}
+  @keyframes driftB{from{transform:translate(0,0)}to{transform:translate(-80px,-70px)}}
+  .vignette{position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(0,0,0,.55) 100%)}
+
+  /* ============ SZKŁO — bazowa powierzchnia ============ */
+  .glass{
+    background:linear-gradient(172deg,
+      rgba(255,255,255,.08) 0%,
+      rgba(255,255,255,.025) 26%,
+      rgba(10,10,12,.28) 60%,
+      rgba(255,255,255,.04) 100%);
+    -webkit-backdrop-filter:blur(24px) saturate(1.5);
+            backdrop-filter:blur(24px) saturate(1.5);
+    box-shadow:
+      0 18px 44px -18px rgba(0,0,0,.72),
+      inset 0 1px 0 rgba(255,255,255,.20),
+      inset 0 -1px 0 rgba(255,255,255,.05),
+      inset 0 -18px 32px -28px rgba(255,255,255,.16);
+  }
+
+  /* ============ SYGNATURA: płynący chromatyczny stroke ============ */
+  .has-stroke{position:relative;isolation:isolate}
+  .has-stroke::before,
+  .has-stroke::after{
+    content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+    background:conic-gradient(from var(--a),
+      rgba(255,255,255,.92) 0deg,
+      rgba(255,255,255,.12) 40deg,
+      rgba(var(--blue),.85) 90deg,
+      rgba(255,255,255,.08) 140deg,
+      rgba(255,255,255,.85) 185deg,
+      rgba(var(--amber),.8) 235deg,
+      rgba(255,255,255,.10) 285deg,
+      rgba(var(--violet),.55) 325deg,
+      rgba(255,255,255,.92) 360deg);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+            mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+            mask-composite:exclude;
+    animation:flow 10s linear infinite;
+  }
+  .has-stroke::before{padding:1.2px}
+  .has-stroke::after{padding:3px;filter:blur(6px);opacity:.75;inset:-1px}
+
+  /* ============ CHROMOWY DYSK (mini, czysty CSS) ============ */
+  .dot{
+    position:relative;flex:0 0 auto;width:26px;height:26px;border-radius:50%;
+    background:
+      radial-gradient(circle at 32% 26%, rgba(255,255,255,.95), rgba(255,255,255,0) 44%),
+      conic-gradient(from 200deg,
+        #f7f9fc, #8a93a6 10%, #14161b 24%, #eef2f8 40%,
+        #2a2e38 55%, #ffffff 70%, #191c22 84%, #f7f9fc);
+    box-shadow:
+      inset 0 1px 1px rgba(255,255,255,.8),
+      inset 0 -2px 4px rgba(0,0,0,.6),
+      0 4px 10px -3px rgba(0,0,0,.7);
+  }
+  .dot-lg{width:52px;height:52px;display:grid;place-items:center}
+  .dot-lg svg{width:22px;height:22px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.55))}
+
+  /* ============ UKŁAD STRONY ============ */
+  main{max-width:1060px;margin:0 auto;padding:72px 24px 120px}
+  header.page h1{font-size:clamp(34px,5vw,52px);font-weight:600;letter-spacing:-.03em;
+    text-shadow:0 1px 2px rgba(0,0,0,.5),0 6px 24px rgba(0,0,0,.4)}
+  header.page p{margin-top:10px;color:var(--ink-2);font-size:17px;max-width:56ch}
+  section{margin-top:64px}
+  .eyebrow{font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ink-3);margin-bottom:18px}
+  .row{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+  .row + .row{margin-top:16px}
+
+  /* dostępność */
+  :is(button,input,a):focus-visible{
+    outline:2px solid rgba(150,180,255,.9);outline-offset:4px}
+  .switch input:focus-visible + .track,
+  .check input:focus-visible + .box,
+  .seg input:focus-visible ~ .thumb{
+    outline:2px solid rgba(150,180,255,.9);outline-offset:4px}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+  /* ============ PRZYCISKI ============ */
+  .btn{
+    position:relative;display:inline-flex;align-items:center;gap:10px;
+    border:0;cursor:pointer;border-radius:999px;
+    font:inherit;font-size:15px;font-weight:500;letter-spacing:-.01em;color:#fff;
+    padding:14px 26px;
+    text-shadow:0 1px 2px rgba(0,0,0,.45);
+    transition:transform .45s cubic-bezier(.2,.9,.25,1.15),box-shadow .45s ease,
+               background-position .9s ease,opacity .3s ease;
+  }
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;filter:saturate(.4)}
+  .btn:disabled::before,.btn:disabled::after{display:none}
+  .btn-lg{font-size:17px;padding:18px 34px}
+  .btn-sm{font-size:13px;padding:9px 18px}
+
+  .btn-primary{
+    background:
+      linear-gradient(100deg,transparent 32%,rgba(255,255,255,.16) 50%,transparent 68%)
+        no-repeat -160% 0 / 200% 100%,
+      linear-gradient(172deg,rgba(255,255,255,.10),rgba(255,255,255,.03) 26%,
+        rgba(12,12,15,.34) 60%,rgba(255,255,255,.05));
+    -webkit-backdrop-filter:blur(22px) saturate(1.5);
+            backdrop-filter:blur(22px) saturate(1.5);
+    box-shadow:
+      0 22px 50px -18px rgba(0,0,0,.8),
+      inset 0 1px 0 rgba(255,255,255,.24),
+      inset 0 -14px 24px -20px rgba(255,255,255,.20);
+  }
+  .btn-primary:hover{background-position:260% 0,0 0;transform:translateY(-2px)}
+
+  .btn-secondary{
+    background:linear-gradient(172deg,rgba(255,255,255,.05),rgba(255,255,255,.015) 40%,
+      rgba(10,10,12,.22) 70%,rgba(255,255,255,.03));
+    -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),
+      inset 0 1px 0 rgba(255,255,255,.16),
+      0 12px 28px -14px rgba(0,0,0,.7);
+  }
+  .btn-secondary:hover{
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.28),
+      inset 0 1px 0 rgba(255,255,255,.22),
+      0 16px 34px -14px rgba(0,0,0,.75);
+    transform:translateY(-2px);
+  }
+
+  .btn-ghost{background:transparent;color:var(--ink-2)}
+  .btn-ghost:hover{background:rgba(255,255,255,.06);color:#fff}
+
+  .btn-icon{width:48px;height:48px;padding:0;justify-content:center;border-radius:50%}
+  .btn svg{width:16px;height:16px;flex:0 0 auto}
+  .btn svg path{stroke:currentColor;stroke-width:2.4;stroke-linecap:round;
+    stroke-linejoin:round;fill:none}
+
+  /* ============ SZUKAJKA ============ */
+  .search{
+    display:flex;align-items:center;gap:14px;
+    width:min(560px,100%);border-radius:999px;padding:6px 10px 6px 22px;
+    position:relative;isolation:isolate;
+  }
+  .search::before,.search::after{opacity:0;transition:opacity .4s ease}
+  .search:focus-within::before,.search:focus-within::after{opacity:1}
+  .search svg{width:18px;height:18px;flex:0 0 auto}
+  .search svg path,.search svg circle{stroke:var(--ink-3);stroke-width:2.2;
+    stroke-linecap:round;fill:none}
+  .search input{
+    flex:1;min-width:0;border:0;background:transparent;color:#fff;
+    font:inherit;font-size:16px;padding:12px 0;
+  }
+  .search input::placeholder{color:var(--ink-3)}
+  .search input:focus{outline:none}
+  .search kbd{
+    font:inherit;font-size:12px;color:var(--ink-2);
+    padding:5px 10px;border-radius:9px;
+    background:rgba(255,255,255,.05);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),inset 0 -1.5px 0 rgba(0,0,0,.5);
+  }
+
+  /* ============ PRZEŁĄCZNIKI ============ */
+  .switch{display:inline-flex;align-items:center;gap:14px;cursor:pointer;user-select:none}
+  .switch input{position:absolute;opacity:0;pointer-events:none}
+  .switch .track{
+    position:relative;width:58px;height:32px;border-radius:999px;flex:0 0 auto;
+    background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(255,255,255,.03));
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.65),
+      inset 0 -1px 0 rgba(255,255,255,.10),
+      inset 0 0 0 1px rgba(255,255,255,.08);
+    transition:box-shadow .4s ease,background .4s ease;
+  }
+  .switch .knob{
+    position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;
+    background:
+      radial-gradient(circle at 32% 26%, rgba(255,255,255,.95), rgba(255,255,255,0) 44%),
+      conic-gradient(from 200deg,#f7f9fc,#8a93a6 10%,#14161b 24%,#eef2f8 40%,
+        #2a2e38 55%,#fff 70%,#191c22 84%,#f7f9fc);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.8),
+      inset 0 -2px 4px rgba(0,0,0,.6),0 3px 8px -2px rgba(0,0,0,.7);
+    transition:translate .35s cubic-bezier(.3,.9,.3,1.1);
+  }
+  .switch input:checked + .track{
+    background:linear-gradient(100deg,rgba(var(--blue),.30),rgba(var(--violet),.18) 55%,
+      rgba(var(--amber),.28));
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.5),
+      inset 0 0 0 1px rgba(255,255,255,.22),
+      inset 0 -1px 0 rgba(255,255,255,.14),
+      0 0 22px -4px rgba(var(--blue),.45);
+  }
+  .switch input:checked + .track .knob{translate:26px 0}
+  .switch input:disabled + .track{opacity:.4}
+  .switch .txt{font-size:15px;color:var(--ink-2)}
+  .switch input:checked ~ .txt{color:#fff}
+
+  /* ============ CHECKBOXY ============ */
+  .check{display:inline-flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+  .check input{position:absolute;opacity:0;pointer-events:none}
+  .check .box{
+    width:23px;height:23px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;
+    background:linear-gradient(180deg,rgba(0,0,0,.40),rgba(255,255,255,.04));
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.10);
+    transition:background .3s ease,box-shadow .3s ease;
+  }
+  .check .box svg{width:12px;height:12px;opacity:0;scale:.6;transition:opacity .25s,scale .25s}
+  .check .box svg path{stroke:#fff;stroke-width:3;stroke-linecap:round;
+    stroke-linejoin:round;fill:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+  .check input:checked + .box{
+    background:linear-gradient(140deg,rgba(var(--blue),.45),rgba(var(--violet),.30));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.35),
+      inset 0 0 0 1px rgba(255,255,255,.22),
+      0 0 16px -3px rgba(var(--blue),.5);
+  }
+  .check input:checked + .box svg{opacity:1;scale:1}
+  .check .txt{font-size:15px;color:var(--ink-2)}
+  .check input:checked ~ .txt{color:#fff}
+
+  /* ============ KONTROLKA SEGMENTOWA ============ */
+  .seg{
+    position:relative;display:grid;grid-template-columns:repeat(3,1fr);
+    width:min(440px,100%);border-radius:999px;padding:4px;
+  }
+  .seg input{position:absolute;opacity:0;pointer-events:none}
+  .seg .thumb{
+    position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/3);
+    border-radius:999px;
+    background:linear-gradient(172deg,rgba(255,255,255,.14),rgba(255,255,255,.04) 45%,
+      rgba(255,255,255,.09));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 6px 14px -6px rgba(0,0,0,.7);
+    transition:translate .35s cubic-bezier(.3,.9,.3,1.1);
+  }
+  .seg:has(#seg2:checked) .thumb{translate:100% 0}
+  .seg:has(#seg3:checked) .thumb{translate:200% 0}
+  .seg label{
+    position:relative;z-index:1;text-align:center;padding:11px 6px;cursor:pointer;
+    font-size:14px;font-weight:500;color:var(--ink-3);border-radius:999px;
+    transition:color .3s ease;
+  }
+  .seg:has(#seg1:checked) label[for=seg1],
+  .seg:has(#seg2:checked) label[for=seg2],
+  .seg:has(#seg3:checked) label[for=seg3]{color:#fff}
+
+  /* ============ SUWAK ============ */
+  .slider-wrap{width:min(440px,100%)}
+  .slider-head{display:flex;justify-content:space-between;margin-bottom:12px;
+    font-size:14px;color:var(--ink-2)}
+  .slider-head output{color:#fff;font-weight:600}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:28px;
+    background:transparent;cursor:pointer;--p:64%;
+  }
+  input[type=range]::-webkit-slider-runnable-track{
+    height:8px;border-radius:999px;
+    background:
+      linear-gradient(90deg,rgba(var(--blue),.9),rgba(var(--violet),.8) 55%,
+        rgba(var(--amber),.9)) 0 0/var(--p) 100% no-repeat,
+      linear-gradient(180deg,rgba(0,0,0,.45),rgba(255,255,255,.04));
+    box-shadow:inset 0 1px 4px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:24px;height:24px;border-radius:50%;margin-top:-8px;
+    background:
+      radial-gradient(circle at 32% 26%, rgba(255,255,255,.95), rgba(255,255,255,0) 44%),
+      conic-gradient(from 200deg,#f7f9fc,#8a93a6 10%,#14161b 24%,#eef2f8 40%,
+        #2a2e38 55%,#fff 70%,#191c22 84%,#f7f9fc);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.8),
+      inset 0 -2px 4px rgba(0,0,0,.6),0 4px 10px -3px rgba(0,0,0,.8);
+  }
+  input[type=range]::-moz-range-track{
+    height:8px;border-radius:999px;
+    background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(255,255,255,.04));
+    box-shadow:inset 0 1px 4px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  input[type=range]::-moz-range-progress{
+    height:8px;border-radius:999px;
+    background:linear-gradient(90deg,rgba(var(--blue),.9),rgba(var(--amber),.9));
+  }
+  input[type=range]::-moz-range-thumb{
+    width:24px;height:24px;border:0;border-radius:50%;
+    background:
+      radial-gradient(circle at 32% 26%, rgba(255,255,255,.95), rgba(255,255,255,0) 44%),
+      conic-gradient(from 200deg,#f7f9fc,#8a93a6 10%,#14161b 24%,#eef2f8 40%,
+        #2a2e38 55%,#fff 70%,#191c22 84%,#f7f9fc);
+    box-shadow:0 4px 10px -3px rgba(0,0,0,.8);
+  }
+
+  /* ============ CHIPY ============ */
+  .chip{
+    border:0;cursor:pointer;font:inherit;font-size:13px;font-weight:500;color:var(--ink-2);
+    padding:9px 18px;border-radius:999px;
+    background:rgba(255,255,255,.045);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),inset 0 1px 0 rgba(255,255,255,.08);
+    transition:all .3s ease;
+  }
+  .chip:hover{color:#fff;background:rgba(255,255,255,.09)}
+  .chip.is-active{
+    color:#fff;
+    background:linear-gradient(120deg,rgba(var(--amber),.18),rgba(var(--violet),.10));
+    box-shadow:inset 0 0 0 1px rgba(var(--amber),.45),
+      inset 0 1px 0 rgba(255,255,255,.2),0 0 20px -6px rgba(var(--amber),.5);
+  }
+
+  /* ============ POLE TEKSTOWE ============ */
+  .field{width:min(440px,100%)}
+  .field label{display:block;font-size:13px;color:var(--ink-3);margin-bottom:9px;
+    letter-spacing:.02em}
+  .field input{
+    width:100%;border:0;border-radius:16px;padding:15px 18px;
+    font:inherit;font-size:15px;color:#fff;
+    background:linear-gradient(180deg,rgba(0,0,0,.38),rgba(255,255,255,.03));
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.10);
+    transition:box-shadow .3s ease;
+  }
+  .field input::placeholder{color:var(--ink-3)}
+  .field input:focus{
+    outline:none;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.5),
+      inset 0 0 0 1px rgba(var(--blue),.6),
+      0 0 24px -6px rgba(var(--blue),.45);
+  }
+
+  /* ============ KAFELKI ============ */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px}
+  .card{
+    border-radius:var(--r-card);padding:28px;
+    display:flex;flex-direction:column;gap:16px;
+    transition:transform .5s cubic-bezier(.2,.9,.25,1.1),box-shadow .5s ease;
+    will-change:transform;
+  }
+  .card:hover{transform:translateY(-5px)}
+  .card h3{font-size:19px;font-weight:600;letter-spacing:-.02em}
+  .card p{font-size:14.5px;line-height:1.55;color:var(--ink-2)}
+  .card .link{
+    margin-top:auto;display:inline-flex;align-items:center;gap:8px;
+    font-size:14px;font-weight:500;color:#fff;text-decoration:none;width:fit-content;
+  }
+  .card .link svg{width:14px;height:14px;transition:transform .3s ease}
+  .card .link:hover svg{transform:translateX(4px)}
+  .card .link svg path{stroke:#fff;stroke-width:2.4;stroke-linecap:round;
+    stroke-linejoin:round;fill:none}
+  .card-featured{background:linear-gradient(172deg,
+      rgba(255,255,255,.10) 0%,rgba(255,255,255,.03) 26%,
+      rgba(10,10,12,.32) 60%,rgba(255,255,255,.05) 100%)}
+  .icon-chip{
+    width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
+    background:rgba(255,255,255,.06);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .icon-chip svg{width:20px;height:20px}
+  .icon-chip svg path{stroke:rgba(var(--blue),1);stroke-width:2;stroke-linecap:round;
+    stroke-linejoin:round;fill:none}
+  .stat-num{
+    font-size:54px;font-weight:600;letter-spacing:-.04em;line-height:1;
+    background:linear-gradient(180deg,#fff 8%,#c3cbdc 42%,#666d7d 55%,#eef2f8 92%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .stat-cap{font-size:14px;color:var(--ink-2)}
+  .trend{display:inline-flex;align-items:center;gap:6px;width:fit-content;
+    font-size:12px;font-weight:600;color:rgba(140,235,190,.95);
+    padding:5px 12px;border-radius:999px;background:rgba(120,255,190,.08);
+    box-shadow:inset 0 0 0 1px rgba(120,255,190,.22)}
+
+  @media (max-width:560px){
+    main{padding:52px 18px 90px}
+    .btn-lg{font-size:15px;padding:15px 26px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none !important;transition:none !important}
+  }
+</style>
+</head>
+<body>
+
+<div class="glow a"></div>
+<div class="glow b"></div>
+<div class="vignette"></div>
+
+<main>
+  <header class="page">
+    <h1>Metallic Glass UI</h1>
+    <p>Zestaw komponentów w stylu czarnego metalicznego szkła — grafitowe tło, szklane powierzchnie i płynący chromatyczny obrys zarezerwowany dla najważniejszych elementów.</p>
+  </header>
+
+  <!-- ================= PRZYCISKI ================= -->
+  <section>
+    <div class="eyebrow">Przyciski</div>
+    <div class="row">
+      <button class="btn btn-lg btn-primary has-stroke">
+        <span class="dot" aria-hidden="true"></span>
+        Uruchom agenta
+      </button>
+      <button class="btn btn-primary has-stroke">Zobacz demo</button>
+      <button class="btn btn-secondary">Dowiedz się więcej</button>
+      <button class="btn btn-ghost">Anuluj</button>
+    </div>
+    <div class="row">
+      <button class="btn btn-sm btn-secondary">Mały wariant</button>
+      <button class="btn btn-icon btn-secondary" aria-label="Dodaj">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button class="btn btn-primary" disabled>Niedostępny</button>
+    </div>
+  </section>
+
+  <!-- ================= SZUKAJKA ================= -->
+  <section>
+    <div class="eyebrow">Wyszukiwanie</div>
+    <div class="search glass has-stroke">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/>
+      </svg>
+      <input type="search" placeholder="Szukaj integracji…" aria-label="Szukaj integracji">
+      <kbd>/</kbd>
+    </div>
+  </section>
+
+  <!-- ================= PRZEŁĄCZNIKI I CHECKBOXY ================= -->
+  <section>
+    <div class="eyebrow">Przełączniki</div>
+    <div class="row">
+      <label class="switch">
+        <input type="checkbox" checked>
+        <span class="track"><span class="knob"></span></span>
+        <span class="txt">Autopilot</span>
+      </label>
+      <label class="switch">
+        <input type="checkbox">
+        <span class="track"><span class="knob"></span></span>
+        <span class="txt">Powiadomienia</span>
+      </label>
+      <label class="switch">
+        <input type="checkbox" disabled>
+        <span class="track"><span class="knob"></span></span>
+        <span class="txt">Tryb offline</span>
+      </label>
+    </div>
+    <div class="row">
+      <label class="check">
+        <input type="checkbox" checked>
+        <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span>
+        <span class="txt">Zapisuj logi rozmów</span>
+      </label>
+      <label class="check">
+        <input type="checkbox">
+        <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg></span>
+        <span class="txt">Raport tygodniowy</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- ================= SEGMENTY, SUWAK, CHIPY, POLE ================= -->
+  <section>
+    <div class="eyebrow">Kontrolki</div>
+    <div class="row">
+      <div class="seg glass" role="radiogroup" aria-label="Widok">
+        <span class="thumb" aria-hidden="true"></span>
+        <input type="radio" name="seg" id="seg1" checked>
+        <input type="radio" name="seg" id="seg2">
+        <input type="radio" name="seg" id="seg3">
+        <label for="seg1">Agenci</label>
+        <label for="seg2">Przepływy</label>
+        <label for="seg3">Integracje</label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="slider-wrap">
+        <div class="slider-head">
+          <span>Temperatura modelu</span>
+          <output id="rangeOut">64</output>
+        </div>
+        <input type="range" id="range" min="0" max="100" value="64"
+          aria-label="Temperatura modelu">
+      </div>
+    </div>
+    <div class="row" id="chips">
+      <button class="chip is-active">Wszystkie</button>
+      <button class="chip">Slack</button>
+      <button class="chip">Notion</button>
+      <button class="chip">Gmail</button>
+      <button class="chip">CRM</button>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="mail">Adres e-mail</label>
+        <input type="email" id="mail" placeholder="ty@firma.pl" autocomplete="email">
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= KAFELKI ================= -->
+  <section>
+    <div class="eyebrow">Kafelki</div>
+    <div class="cards">
+
+      <article class="card glass card-featured has-stroke" id="cardTilt">
+        <span class="dot dot-lg" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <defs>
+              <linearGradient id="star" x1="0" y1="0" x2="0.35" y2="1">
+                <stop offset="0%" stop-color="#ffb066"/>
+                <stop offset="45%" stop-color="#fff"/>
+                <stop offset="100%" stop-color="#3861ff"/>
+              </linearGradient>
+            </defs>
+            <path fill="url(#star)" d="M32 1.5 C34.3 16.2 39.4 24.9 48.6 28.3 L62.5 32 L48.6 35.7 C39.4 39.1 34.3 47.8 32 62.5 C29.7 47.8 24.6 39.1 15.4 35.7 L1.5 32 L15.4 28.3 C24.6 24.9 29.7 16.2 32 1.5 Z"/>
+          </svg>
+        </span>
+        <h3>Agent sprzedażowy</h3>
+        <p>Kwalifikuje leady, odpisuje na zapytania i umawia spotkania, zanim zdążysz otworzyć skrzynkę.</p>
+        <a class="link" href="#">
+          Skonfiguruj
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+
+      <article class="card glass">
+        <span class="icon-chip" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M8 7h8a4 4 0 0 1 0 8h-1M16 17H8a4 4 0 0 1 0-8h1"/></svg>
+        </span>
+        <h3>Integracje</h3>
+        <p>Połącz Slack, Notion i CRM w jeden przepływ. Dane trafiają tam, gdzie mają być — bez kopiowania.</p>
+        <a class="link" href="#">
+          Przeglądaj katalog
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+
+      <article class="card glass">
+        <span class="trend">▲ +18% m/m</span>
+        <span class="stat-num">128&nbsp;h</span>
+        <p class="stat-cap">zaoszczędzone przez automatyzacje w tym miesiącu</p>
+      </article>
+
+    </div>
+  </section>
+</main>
+
+<script>
+/* Suwak — wypełnienie do pozycji kciuka + wartość */
+(function(){
+  const r=document.getElementById('range'),o=document.getElementById('rangeOut');
+  const upd=()=>{r.style.setProperty('--p',r.value+'%');o.textContent=r.value};
+  r.addEventListener('input',upd);upd();
+})();
+
+/* Chipy — pojedynczy wybór */
+document.getElementById('chips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip');if(!c)return;
+  c.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('is-active'));
+  c.classList.add('is-active');
+});
+
+/* Delikatny tilt 3D — tylko wyróżniony kafelek */
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const el=document.getElementById('cardTilt');
+  el.addEventListener('pointermove',e=>{
+    const b=el.getBoundingClientRect();
+    const x=(e.clientX-b.left)/b.width-.5, y=(e.clientY-b.top)/b.height-.5;
+    el.style.transform=`perspective(900px) rotateX(${(-y*5).toFixed(2)}deg) rotateY(${(x*6).toFixed(2)}deg) translateY(-5px)`;
+  });
+  el.addEventListener('pointerleave',()=>{el.style.transform=''});
+})();
+</script>
+</body>
+</html>
